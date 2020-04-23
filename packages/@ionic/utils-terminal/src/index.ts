@@ -1,15 +1,23 @@
 import * as Debug from 'debug';
+import * as os from 'os';
 
 const debug = Debug('ionic:utils-terminal');
 
 /**
- * These environment variables work for: Travis CI, CircleCI, Gitlab CI,
- * AppVeyor, CodeShip, Jenkins, TeamCity, Bitbucket Pipelines, AWS CodeBuild
+ * These environment variables work for: GitHub Actions, Travis CI, CircleCI,
+ * Gitlab CI, AppVeyor, CodeShip, Jenkins, TeamCity, Bitbucket Pipelines, AWS
+ * CodeBuild
  */
-export const CI_ENVIRONMENT_VARIABLES: readonly string[] = ['CI', 'BUILD_ID', 'BUILD_NUMBER', 'BITBUCKET_COMMIT', 'CODEBUILD_BUILD_ARN'];
+export const CI_ENVIRONMENT_VARIABLES: readonly string[] = ['CI', 'BUILD_ID', 'BUILD_NUMBER', 'BITBUCKET_COMMIT', 'CODEBUILD_BUILD_ARN', 'GITHUB_ACTIONS'];
 export const CI_ENVIRONMENT_VARIABLES_DETECTED = CI_ENVIRONMENT_VARIABLES.filter(v => !!process.env[v]);
 
 function getShell(): string {
+  const { shell } = os.userInfo();
+
+  if (shell) {
+    return shell;
+  }
+
   if (process.env.SHELL) {
     return process.env.SHELL;
   }
@@ -55,9 +63,8 @@ export const TERMINAL_INFO: TerminalInfo = Object.freeze({
   ci: CI_ENVIRONMENT_VARIABLES_DETECTED.length > 0,
   shell: getShell(),
   tty: Boolean(process.stdin.isTTY && process.stdout.isTTY && process.stderr.isTTY),
-  windows: process.platform === 'win32' || (
+  windows: process.platform === 'win32' || !!(
     process.env.OSTYPE && /^(msys|cygwin)$/.test(process.env.OSTYPE) ||
-    process.env.MSYSTEM && /^MINGW(32|64)$/.test(process.env.MSYSTEM) ||
-    process.env.TERM === 'cygwin'
+    process.env.MSYSTEM && /^MINGW(32|64)$/.test(process.env.MSYSTEM)
   ),
 });

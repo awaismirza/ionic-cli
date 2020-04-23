@@ -1,6 +1,6 @@
 import { Command, CommandLineInputs, CommandLineOptions } from '@ionic/cli-framework';
 import { str2num } from '@ionic/cli-framework/utils/string';
-import chalk from 'chalk';
+import * as chalk from 'chalk';
 import * as path from 'path';
 
 import { Config } from '../lib/config';
@@ -76,7 +76,7 @@ export class ServeCommand extends Command {
       await runTask('ionic:serve:before');
     }
 
-    const config = new Config(path.resolve(process.cwd(), 'ionic.config.json'));
+    const config = new Config(path.resolve(process.cwd(), process.env['IONIC_CONFIG_FILE'] ?? 'ionic.config.json'));
 
     const c = config.c;
     const wwwDir = c.documentRoot || 'www';
